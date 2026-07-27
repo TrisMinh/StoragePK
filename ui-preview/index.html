@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f7fb" />
+    <meta
+      name="description"
+      content="StoragePK workspace dashboard preview"
+    />
+    <title>StoragePK | Workspace overview</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script defer src="./app.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Workspace navigation">
+        <div class="sidebar-top">
+          <a class="brand" href="#overview" aria-label="StoragePK overview">
+            <span class="brand-mark" aria-hidden="true">
+              <span></span><span></span><span></span>
+            </span>
+            <span class="brand-name">StoragePK</span>
+          </a>
+
+          <button class="workspace-switcher" type="button" aria-label="Switch workspace">
+            <span class="workspace-avatar">M</span>
+            <span class="workspace-copy">
+              <strong>Demo workspace</strong>
+              <small>Personal storage</small>
+            </span>
+            <i class="ph ph-caret-up-down" aria-hidden="true"></i>
+          </button>
+
+          <nav class="primary-nav" aria-label="Primary">
+            <p class="nav-label">Workspace</p>
+            <a class="nav-item is-active" href="#overview">
+              <i class="ph ph-squares-four" aria-hidden="true"></i>
+              <span>Overview</span>
+            </a>
+            <a class="nav-item" href="#files">
+              <i class="ph ph-files" aria-hidden="true"></i>
+              <span>All files</span>
+              <span class="nav-count">248</span>
+            </a>
+            <a class="nav-item" href="#activity">
+              <i class="ph ph-clock-counter-clockwise" aria-hidden="true"></i>
+              <span>Activity</span>
+            </a>
+          </nav>
+
+          <div class="sidebar-section">
+            <div class="sidebar-section-heading">
+              <p class="nav-label">Storage pools</p>
+              <button class="icon-button icon-button--small" type="button" aria-label="Add storage pool">
+                <i class="ph ph-plus" aria-hidden="true"></i>
+              </button>
+            </div>
+            <a class="pool-nav-item" href="#pools">
+              <span class="provider-icon provider-icon--drive"><i class="ph ph-google-drive-logo" aria-hidden="true"></i></span>
+              <span>Drive Stack</span>
+              <span class="status-dot status-dot--healthy" aria-label="Healthy"></span>
+            </a>
+            <a class="pool-nav-item" href="#pools">
+              <span class="provider-icon provider-icon--telegram"><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i></span>
+              <span>Telegram Vault</span>
+              <span class="status-dot status-dot--healthy" aria-label="Healthy"></span>
+            </a>
+          </div>
+        </div>
+
+        <div class="sidebar-bottom">
+          <div class="support-card">
+            <span class="support-icon"><i class="ph ph-sparkle" aria-hidden="true"></i></span>
+            <div>
+              <strong>StoragePK Pro</strong>
+              <p>Unlock smart routing and more.</p>
+              <button type="button">Explore Pro <i class="ph ph-arrow-up-right" aria-hidden="true"></i></button>
+            </div>
+          </div>
+          <a class="nav-item" href="#settings">
+            <i class="ph ph-gear-six" aria-hidden="true"></i>
+            <span>Settings</span>
+          </a>
+          <div class="profile-row">
+            <span class="profile-avatar">MN</span>
+            <span class="profile-copy">
+              <strong>StoragePK user</strong>
+              <small>Free plan</small>
+            </span>
+            <i class="ph ph-dots-three" aria-hidden="true"></i>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content" id="overview">
+        <header class="topbar">
+          <div class="breadcrumbs" aria-label="Breadcrumb">
+            <span>Demo workspace</span>
+            <i class="ph ph-caret-right" aria-hidden="true"></i>
+            <strong>Overview</strong>
+          </div>
+          <div class="topbar-actions">
+            <label class="search-box">
+              <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+              <input id="activity-search" type="search" placeholder="Search files" aria-label="Search files" />
+              <kbd>⌘ K</kbd>
+            </label>
+            <button class="icon-button" type="button" aria-label="Notifications">
+              <i class="ph ph-bell" aria-hidden="true"></i>
+              <span class="notification-dot" aria-hidden="true"></span>
+            </button>
+            <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false">
+              <i class="ph ph-sun" aria-hidden="true"></i>
+              <span>Light</span>
+            </button>
+          </div>
+        </header>
+
+        <div class="content-wrap">
+          <section class="page-heading" aria-labelledby="page-title">
+            <div>
+              <p class="eyebrow">Workspace overview</p>
+              <h1 id="page-title">Your storage, organised.</h1>
+              <p class="page-subtitle">Your files are organised and your storage pools are running smoothly.</p>
+            </div>
+            <button class="button button--primary" id="open-upload" type="button">
+              <i class="ph ph-upload-simple" aria-hidden="true"></i>
+              Add files
+            </button>
+          </section>
+
+          <section class="top-grid" aria-label="Storage summary">
+            <article class="surface storage-summary">
+              <div class="card-heading">
+                <div>
+                  <p class="section-kicker">Total storage</p>
+                  <h2>14.8 <span>GB</span></h2>
+                </div>
+                <button class="more-button" type="button" aria-label="More storage options">
+                  <i class="ph ph-dots-three" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="storage-summary-body">
+                <div class="storage-ring" aria-label="14.8 GB used of 32 GB">
+                  <div class="storage-ring__inner">
+                    <strong>46%</strong>
+                    <span>used</span>
+                  </div>
+                </div>
+                <div class="storage-breakdown">
+                  <div class="breakdown-row">
+                    <span><i class="legend-dot legend-dot--drive"></i>Drive Stack</span>
+                    <strong>8.2 GB</strong>
+                  </div>
+                  <div class="breakdown-row">
+                    <span><i class="legend-dot legend-dot--telegram"></i>Telegram Vault</span>
+                    <strong>6.6 GB</strong>
+                  </div>
+                  <div class="storage-progress" aria-hidden="true"><span></span></div>
+                  <p class="muted-note">32 GB available across 10 connected accounts</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="surface upload-card" id="drop-zone" tabindex="0" aria-label="Drop files to upload">
+              <div class="upload-card__header">
+                <div>
+                  <p class="section-kicker">Quick upload</p>
+                  <h2>Bring files in.</h2>
+                </div>
+                <span class="upload-status"><i class="ph ph-check-circle" aria-hidden="true"></i> Ready</span>
+              </div>
+              <div class="drop-target" id="drop-target">
+                <span class="drop-icon"><i class="ph ph-cloud-arrow-up" aria-hidden="true"></i></span>
+                <div>
+                  <strong>Drop files anywhere here</strong>
+                  <p>or <button id="browse-files" type="button">browse from your device</button></p>
+                </div>
+                <small>Smart routing chooses the best connected pool</small>
+              </div>
+              <p class="upload-feedback" id="upload-feedback" role="status">PDF, images, video and more. Up to 2 GB per file.</p>
+              <input id="file-input" type="file" multiple hidden />
+            </article>
+          </section>
+
+          <section class="section-block" id="pools" aria-labelledby="pools-title">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Connected infrastructure</p>
+                <h2 id="pools-title">Storage pools</h2>
+              </div>
+              <button class="button button--secondary" type="button">Manage pools <i class="ph ph-arrow-up-right" aria-hidden="true"></i></button>
+            </div>
+            <div class="pool-grid">
+              <article class="surface pool-card pool-card--drive">
+                <div class="pool-card__topline">
+                  <div class="provider-icon provider-icon--drive provider-icon--large"><i class="ph ph-google-drive-logo" aria-hidden="true"></i></div>
+                  <span class="connection-badge"><i class="ph ph-check-circle" aria-hidden="true"></i> Connected</span>
+                </div>
+                <div class="pool-card__name-row">
+                  <div>
+                    <h3>Drive Stack</h3>
+                    <p>10 Google Drive accounts</p>
+                  </div>
+                  <button class="more-button" type="button" aria-label="More Drive Stack options"><i class="ph ph-dots-three" aria-hidden="true"></i></button>
+                </div>
+                <div class="pool-capacity"><span>8.2 GB used</span><strong>25.6%</strong></div>
+                <div class="capacity-track"><span style="width: 26%"></span></div>
+                <div class="pool-card__footer"><span>32 GB total capacity</span><span>Synced 2 min ago</span></div>
+              </article>
+
+              <article class="surface pool-card pool-card--telegram">
+                <div class="pool-card__topline">
+                  <div class="provider-icon provider-icon--telegram provider-icon--large"><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i></div>
+                  <span class="connection-badge"><i class="ph ph-check-circle" aria-hidden="true"></i> Connected</span>
+                </div>
+                <div class="pool-card__name-row">
+                  <div>
+                    <h3>Telegram Vault</h3>
+                    <p>Private bot archive</p>
+                  </div>
+                  <button class="more-button" type="button" aria-label="More Telegram Vault options"><i class="ph ph-dots-three" aria-hidden="true"></i></button>
+                </div>
+                <div class="pool-capacity"><span>6.6 GB used</span><strong>Local Bot API</strong></div>
+                <div class="capacity-track capacity-track--telegram"><span style="width: 41%"></span></div>
+                <div class="pool-card__footer"><span>Large file mode enabled</span><span>Synced 5 min ago</span></div>
+              </article>
+
+              <button class="surface add-pool-card" type="button">
+                <span class="add-pool-icon"><i class="ph ph-plus" aria-hidden="true"></i></span>
+                <strong>Connect a storage pool</strong>
+                <span>Google Drive, Telegram or more</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="section-block" id="activity" aria-labelledby="activity-title">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Latest changes</p>
+                <h2 id="activity-title">Recent activity</h2>
+              </div>
+              <a class="text-link" href="#activity">View all activity <i class="ph ph-arrow-up-right" aria-hidden="true"></i></a>
+            </div>
+            <div class="surface activity-table" id="activity-table">
+              <div class="activity-row activity-row--head">
+                <span>File</span><span>Location</span><span>Activity</span><span>Updated</span>
+              </div>
+              <div class="activity-row" data-file="project brief.pdf">
+                <div class="file-cell"><span class="file-icon file-icon--pdf"><i class="ph ph-file-pdf" aria-hidden="true"></i></span><span><strong>Project brief.pdf</strong><small>2.4 MB</small></span></div>
+                <span class="location-cell"><i class="ph ph-google-drive-logo" aria-hidden="true"></i> Drive Stack</span>
+                <span class="activity-cell"><i class="ph ph-cloud-arrow-up"></i> Uploaded</span>
+                <span class="time-cell">2 minutes ago</span>
+              </div>
+              <div class="activity-row" data-file="brand assets.zip">
+                <div class="file-cell"><span class="file-icon file-icon--zip"><i class="ph ph-file-zip" aria-hidden="true"></i></span><span><strong>Brand assets.zip</strong><small>184 MB</small></span></div>
+                <span class="location-cell"><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i> Telegram Vault</span>
+                <span class="activity-cell"><i class="ph ph-check-circle"></i> Synced</span>
+                <span class="time-cell">18 minutes ago</span>
+              </div>
+              <div class="activity-row" data-file="meeting notes.docx">
+                <div class="file-cell"><span class="file-icon file-icon--doc"><i class="ph ph-file-doc" aria-hidden="true"></i></span><span><strong>Meeting notes.docx</strong><small>840 KB</small></span></div>
+                <span class="location-cell"><i class="ph ph-google-drive-logo" aria-hidden="true"></i> Drive Stack</span>
+                <span class="activity-cell"><i class="ph ph-folder-notch-open"></i> Organised</span>
+                <span class="time-cell">Yesterday</span>
+              </div>
+              <div class="activity-empty" id="activity-empty" hidden>No matching files in recent activity.</div>
+            </div>
+          </section>
+
+          <footer class="page-footer">
+            <span><span class="status-dot status-dot--healthy"></span> All systems operational</span>
+            <span>StoragePK preview</span>
+          </footer>
+        </div>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite">
+      <i class="ph ph-check-circle" aria-hidden="true"></i>
+      <span id="toast-message">Files added to your upload queue.</span>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,377 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProviderName {
+  drive
+  telegram
+}
+
+enum ProviderMode {
+  oauth
+  public_bot_api
+  local_bot_api
+}
+
+enum ProviderHealthState {
+  healthy
+  degraded
+  disconnected
+  revoked
+}
+
+enum StoragePoolMode {
+  fill_first
+  balanced
+  rule_based
+  failover
+  replicated
+  archive
+}
+
+enum WorkspaceRole {
+  owner
+  admin
+  editor
+  viewer
+}
+
+model User {
+  id                String            @id @default(uuid()) @db.Uuid
+  email             String            @unique
+  displayName       String            @map("display_name")
+  status            String            @default("active")
+  passwordHash      String?           @map("password_hash")
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+  deletedAt         DateTime?         @map("deleted_at")
+  ownedWorkspaces   Workspace[]       @relation("WorkspaceOwner")
+  memberships       WorkspaceMember[]
+  providerAccounts  ProviderAccount[]
+  devices           Device[]
+  auditEvents       AuditEvent[]
+  resources         Resource[]
+  sessions          Session[]
+}
+
+model Workspace {
+  id                       String                    @id @default(uuid()) @db.Uuid
+  name                     String
+  slug                     String                    @unique
+  ownerUserId              String                    @map("owner_user_id") @db.Uuid
+  defaultProviderAccountId String?                   @map("default_provider_account_id") @db.Uuid
+  createdAt                DateTime                  @default(now()) @map("created_at")
+  deletedAt                DateTime?                 @map("deleted_at")
+  owner                    User                      @relation("WorkspaceOwner", fields: [ownerUserId], references: [id])
+  members                  WorkspaceMember[]
+  providerAccounts        ProviderAccount[]
+  defaultProviderAccount  ProviderAccount?          @relation("WorkspaceDefaultProvider", fields: [defaultProviderAccountId], references: [id])
+  storagePools             StoragePool[]
+  resources                Resource[]
+  folders                  Folder[]
+  uploadSessions            UploadSession[]
+  routeDecisions            StoragePoolRouteDecision[]
+  uploadAttempts            ProviderUploadAttempt[]
+  devices                  Device[]
+  capabilities             DesktopConnectorCapability[]
+  leases                   DesktopJobLease[]
+  auditEvents              AuditEvent[]
+}
+
+model WorkspaceMember {
+  workspaceId String        @map("workspace_id") @db.Uuid
+  userId      String        @map("user_id") @db.Uuid
+  role        WorkspaceRole
+  createdAt   DateTime      @default(now()) @map("created_at")
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([workspaceId, userId])
+}
+
+model Device {
+  id          String       @id @default(uuid()) @db.Uuid
+  userId      String       @map("user_id") @db.Uuid
+  workspaceId String       @map("workspace_id") @db.Uuid
+  deviceName  String       @map("device_name")
+  deviceType  String       @map("device_type")
+  lastSeenAt  DateTime?    @map("last_seen_at")
+  revokedAt   DateTime?    @map("revoked_at")
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  capabilities DesktopConnectorCapability[]
+  leases      DesktopJobLease[]
+  sessions    Session[]
+}
+
+model ProviderAccount {
+  id                    String                     @id @default(uuid()) @db.Uuid
+  userId                String                     @map("user_id") @db.Uuid
+  workspaceId           String?                    @map("workspace_id") @db.Uuid
+  provider              ProviderName
+  mode                  ProviderMode
+  displayName           String                     @map("display_name")
+  encryptedCredentials  Bytes                      @map("encrypted_credentials")
+  scopes                Json                       @default("[]")
+  quotaStatus           Json?                      @map("quota_status")
+  healthState           ProviderHealthState        @default(degraded) @map("health_state")
+  identity              String?
+  createdAt             DateTime                   @default(now()) @map("created_at")
+  revokedAt             DateTime?                  @map("revoked_at")
+  user                  User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace             Workspace?                 @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  defaultForWorkspaces  Workspace[]                @relation("WorkspaceDefaultProvider")
+  poolMemberships       StoragePoolAccount[]
+  capabilitySnapshots   ProviderCapabilitySnapshot[]
+  uploadAttempts        ProviderUploadAttempt[]
+  storageObjects        StorageObject[]
+  selectedRouteDecisions StoragePoolRouteDecision[]
+}
+
+model StoragePool {
+  id             String                    @id @default(uuid()) @db.Uuid
+  workspaceId    String                    @map("workspace_id") @db.Uuid
+  name           String
+  mode           StoragePoolMode
+  isDefault      Boolean                   @default(false) @map("is_default")
+  settings       Json                      @default("{}")
+  createdAt      DateTime                  @default(now()) @map("created_at")
+  deletedAt      DateTime?                 @map("deleted_at")
+  workspace      Workspace                 @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  accounts       StoragePoolAccount[]
+  routeDecisions StoragePoolRouteDecision[]
+}
+
+model StoragePoolAccount {
+  storagePoolId          String         @map("storage_pool_id") @db.Uuid
+  providerAccountId      String         @map("provider_account_id") @db.Uuid
+  priority               Int
+  role                   String
+  quotaThresholdPercent Int?           @map("quota_threshold_percent")
+  rules                  Json           @default("{}")
+  createdAt              DateTime       @default(now()) @map("created_at")
+  storagePool            StoragePool    @relation(fields: [storagePoolId], references: [id], onDelete: Cascade)
+  providerAccount        ProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
+
+  @@id([storagePoolId, providerAccountId])
+  @@unique([storagePoolId, priority])
+}
+
+model StoragePoolRouteDecision {
+  id                         String          @id @default(uuid()) @db.Uuid
+  workspaceId                String          @map("workspace_id") @db.Uuid
+  storagePoolId              String          @map("storage_pool_id") @db.Uuid
+  uploadSessionItemId        String?         @map("upload_session_item_id") @db.Uuid
+  fileVersionId              String?         @map("file_version_id") @db.Uuid
+  selectedProviderAccountId  String?         @map("selected_provider_account_id") @db.Uuid
+  replicaProviderAccountIds  String[]        @default([]) @map("replica_provider_account_ids")
+  mode                       StoragePoolMode
+  decisionTrace              Json            @map("decision_trace")
+  status                     String
+  createdAt                  DateTime        @default(now()) @map("created_at")
+  workspace                  Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  storagePool                StoragePool     @relation(fields: [storagePoolId], references: [id], onDelete: Cascade)
+  selectedProviderAccount    ProviderAccount? @relation(fields: [selectedProviderAccountId], references: [id])
+  uploadSessionItem          UploadSessionItem? @relation(fields: [uploadSessionItemId], references: [id])
+  fileVersion                FileVersion?    @relation(fields: [fileVersionId], references: [id])
+  uploadAttempts             ProviderUploadAttempt[]
+}
+
+model ProviderCapabilitySnapshot {
+  id                String          @id @default(uuid()) @db.Uuid
+  providerAccountId String          @map("provider_account_id") @db.Uuid
+  provider          ProviderName
+  mode              ProviderMode
+  capabilities      Json
+  limits            Json
+  scopes            Json            @default("[]")
+  checkedAt         DateTime        @default(now()) @map("checked_at")
+  expiresAt         DateTime?       @map("expires_at")
+  providerAccount   ProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
+
+  @@index([providerAccountId, checkedAt])
+}
+
+model ProviderUploadAttempt {
+  id                String                    @id @default(uuid()) @db.Uuid
+  workspaceId       String                    @map("workspace_id") @db.Uuid
+  fileVersionId     String                    @map("file_version_id") @db.Uuid
+  providerAccountId String                    @map("provider_account_id") @db.Uuid
+  routeDecisionId   String                    @map("route_decision_id") @db.Uuid
+  attemptNumber     Int                       @map("attempt_number")
+  idempotencyKey    String                    @unique @map("idempotency_key")
+  executionLocation String                    @map("execution_location")
+  state             String
+  providerRequestId String?                   @map("provider_request_id")
+  providerObjectId  String?                   @map("provider_object_id")
+  errorCode         String?                   @map("error_code")
+  startedAt         DateTime?                 @map("started_at")
+  completedAt       DateTime?                 @map("completed_at")
+  workspace         Workspace                 @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  fileVersion       FileVersion               @relation(fields: [fileVersionId], references: [id], onDelete: Cascade)
+  providerAccount   ProviderAccount           @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
+  routeDecision     StoragePoolRouteDecision @relation(fields: [routeDecisionId], references: [id], onDelete: Cascade)
+}
+
+model Folder {
+  id           String     @id @default(uuid()) @db.Uuid
+  workspaceId  String     @map("workspace_id") @db.Uuid
+  parentFolderId String?  @map("parent_folder_id") @db.Uuid
+  name         String
+  pathCache    String     @map("path_cache")
+  sortOrder    Int        @default(0) @map("sort_order")
+  deletedAt    DateTime?  @map("deleted_at")
+  workspace    Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  parent       Folder?    @relation("FolderTree", fields: [parentFolderId], references: [id])
+  children     Folder[]   @relation("FolderTree")
+  resources    Resource[]
+}
+
+model Resource {
+  id                String        @id @default(uuid()) @db.Uuid
+  workspaceId       String        @map("workspace_id") @db.Uuid
+  folderId          String?       @map("folder_id") @db.Uuid
+  createdByUserId   String        @map("created_by_user_id") @db.Uuid
+  name              String
+  extension         String?
+  checksumSha256    String        @map("checksum_sha256")
+  lifecycleState    String        @default("active") @map("lifecycle_state")
+  indexStatus       String        @default("pending") @map("index_status")
+  metadata          Json          @default("{}")
+  notes             String?
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+  deletedAt         DateTime?     @map("deleted_at")
+  workspace         Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  folder            Folder?       @relation(fields: [folderId], references: [id])
+  createdBy         User          @relation(fields: [createdByUserId], references: [id])
+  versions          FileVersion[]
+  uploadItems       UploadSessionItem[]
+}
+
+model FileVersion {
+  id                String                    @id @default(uuid()) @db.Uuid
+  resourceId        String                    @map("resource_id") @db.Uuid
+  versionNumber     Int                       @map("version_number")
+  sizeBytes         BigInt                    @map("size_bytes")
+  mimeType          String                    @map("mime_type")
+  originalFilename  String                    @map("original_filename")
+  contentHash       String                    @map("content_hash")
+  createdAt         DateTime                  @default(now()) @map("created_at")
+  resource          Resource                  @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  storageObjects    StorageObject[]
+  routeDecisions    StoragePoolRouteDecision[]
+  uploadAttempts    ProviderUploadAttempt[]
+
+  @@unique([resourceId, versionNumber])
+}
+
+model StorageObject {
+  id                String          @id @default(uuid()) @db.Uuid
+  fileVersionId     String          @map("file_version_id") @db.Uuid
+  providerAccountId String          @map("provider_account_id") @db.Uuid
+  provider          ProviderName
+  providerObjectId  String?
+  providerPath      String?
+  syncState         String          @map("sync_state")
+  lastVerifiedAt    DateTime?       @map("last_verified_at")
+  errorCode         String?         @map("error_code")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  fileVersion       FileVersion     @relation(fields: [fileVersionId], references: [id], onDelete: Cascade)
+  providerAccount   ProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
+}
+
+model UploadSession {
+  id          String             @id @default(uuid()) @db.Uuid
+  workspaceId String             @map("workspace_id") @db.Uuid
+  userId      String             @map("user_id") @db.Uuid
+  state       String
+  expiresAt   DateTime           @map("expires_at")
+  createdAt   DateTime           @default(now()) @map("created_at")
+  workspace   Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  items       UploadSessionItem[]
+}
+
+model UploadSessionItem {
+  id              String                    @id @default(uuid()) @db.Uuid
+  uploadSessionId String                    @map("upload_session_id") @db.Uuid
+  resourceId      String?                   @map("resource_id") @db.Uuid
+  originalName    String                    @map("original_name")
+  stagedPath      String?                   @map("staged_path")
+  sizeBytes       BigInt                    @map("size_bytes")
+  checksumSha256  String?                   @map("checksum_sha256")
+  state           String
+  uploadSession   UploadSession             @relation(fields: [uploadSessionId], references: [id], onDelete: Cascade)
+  resource        Resource?                 @relation(fields: [resourceId], references: [id])
+  routeDecisions  StoragePoolRouteDecision[]
+}
+
+model DesktopConnectorCapability {
+  id             String   @id @default(uuid()) @db.Uuid
+  workspaceId    String   @map("workspace_id") @db.Uuid
+  deviceId       String   @map("device_id") @db.Uuid
+  capabilityType String   @map("capability_type")
+  state          String
+  maxUploadBytes BigInt?  @map("max_upload_bytes")
+  metadata       Json     @default("{}")
+  lastHeartbeatAt DateTime @map("last_heartbeat_at")
+  expiresAt      DateTime @map("expires_at")
+  workspace      Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  device         Device    @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+}
+
+model DesktopJobLease {
+  id          String    @id @default(uuid()) @db.Uuid
+  jobId       String    @map("job_id")
+  deviceId    String    @map("device_id") @db.Uuid
+  workspaceId String    @map("workspace_id") @db.Uuid
+  leaseState  String    @map("lease_state")
+  leasedAt    DateTime  @map("leased_at")
+  expiresAt   DateTime  @map("expires_at")
+  completedAt DateTime? @map("completed_at")
+  device      Device    @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([jobId, leaseState])
+}
+
+model AuditEvent {
+  id           String    @id @default(uuid()) @db.Uuid
+  workspaceId  String    @map("workspace_id") @db.Uuid
+  actorUserId  String?   @map("actor_user_id") @db.Uuid
+  action       String
+  targetType   String    @map("target_type")
+  targetId     String    @map("target_id")
+  beforeJson   Json?     @map("before_json")
+  afterJson    Json?     @map("after_json")
+  correlationId String?  @map("correlation_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  actor        User?     @relation(fields: [actorUserId], references: [id])
+
+  @@index([workspaceId, createdAt])
+}
+
+model Session {
+  id                 String    @id @default(uuid()) @db.Uuid
+  userId             String    @map("user_id") @db.Uuid
+  deviceId           String?   @map("device_id") @db.Uuid
+  familyId           String    @map("family_id")
+  refreshTokenHash   String    @unique @map("refresh_token_hash")
+  clientType         String    @map("client_type")
+  expiresAt          DateTime  @map("expires_at")
+  lastUsedAt         DateTime  @map("last_used_at")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  revokedAt          DateTime? @map("revoked_at")
+  revokeReason       String?   @map("revoke_reason")
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  device             Device?   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt])
+  @@index([familyId])
+}

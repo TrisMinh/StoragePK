@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "StoragePK",
+  "version": "0.3.0",
+  "identifier": "com.storagepk.desktop",
+  "build": {
+    "beforeDevCommand": "npm run dev --workspace=@storagepk/desktop",
+    "devUrl": "http://127.0.0.1:5173",
+    "beforeBuildCommand": "npm run build --workspace=@storagepk/desktop",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "StoragePK",
+        "width": 1320,
+        "height": 840,
+        "minWidth": 900,
+        "minHeight": 620,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self' http://localhost:4000 http://127.0.0.1:49152; connect-src 'self' http://localhost:4000 http://127.0.0.1:49152; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": ["icons/icon.ico"]
+  }
+}

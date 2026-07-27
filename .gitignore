@@ -1,0 +1,40 @@
+# System
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Dependencies and builds for future app code
+.tmp/
+node_modules/
+dist/
+build/
+.next/
+.turbo/
+coverage/
+out/
+.storagepk/
+**/.storagepk/
+.tauri/
+*.tsbuildinfo
+apps/*/.next/
+apps/*/src-tauri/target/
+apps/desktop/src-tauri/gen/schemas/
+release/windows/*.exe
+release/windows/*.msi
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
