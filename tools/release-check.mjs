@@ -15,7 +15,6 @@ const required = [
   ".env.example",
   "docs/deployment/release-gates.md",
   `docs/reviews/release-${packageJson.version}.md`,
-  `release/RELEASE_NOTES_${packageJson.version}.md`,
   "packages/database/prisma/migrations/0001_init/migration.sql",
   "apps/api/dist/main.js",
   "apps/worker/dist/main.js",

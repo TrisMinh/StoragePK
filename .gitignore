@@ -30,8 +30,7 @@ out/
 apps/*/.next/
 apps/*/src-tauri/target/
 apps/desktop/src-tauri/gen/schemas/
-release/windows/*.exe
-release/windows/*.msi
+storagepk-node-sbom.cdx.json
 
 # Logs
 *.log
