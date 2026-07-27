@@ -1,0 +1,88 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  application:
+    name: Lint, test, and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit production dependencies
+        run: npm audit --audit-level=high
+
+      - name: Scan repository for secrets and PII
+        run: npm run security:scan
+
+      - name: Build shared workspaces
+        run: npm run release:prepare
+
+      - name: Lint workspaces
+        run: npm run lint:workspaces
+
+      - name: Type-check workspaces
+        run: npm run typecheck:workspaces
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build production applications
+        run: npm run build
+
+      - name: Run release preflight
+        run: npm run release:check
+
+  desktop:
+    name: Test Windows desktop core
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Select stable Rust
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+
+      - name: Build desktop frontend
+        run: npm run build --workspace=@storagepk/desktop
+
+      - name: Run Tauri tests
+        run: npm run tauri:test --workspace=@storagepk/desktop
+
+      - name: Run Rust clippy
+        run: cargo clippy --manifest-path apps/desktop/src-tauri/Cargo.toml --all-targets --all-features -- -D warnings

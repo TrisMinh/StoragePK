@@ -1,0 +1,70 @@
+name: Feature request
+description: Propose a focused improvement to StoragePK.
+title: "[Feature]: "
+labels: []
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Explain the user problem before proposing implementation details. For security
+        vulnerabilities, use the private reporting link instead of this form.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: User problem
+      description: What is difficult today, and who is affected?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the desired behavior and user experience.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Primary component
+      options:
+        - Windows desktop app
+        - Web app
+        - API or worker
+        - Provider integration
+        - Installation or release process
+        - Documentation
+        - Cross-cutting or unsure
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Include current workarounds or other designs you considered.
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Security, privacy, and provider impact
+      description: Note new credentials, scopes, stored data, network access, quotas, or migrations.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add mockups, examples, or related issues if useful.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Submission checks
+      options:
+        - label: I searched existing issues and documentation for this request.
+          required: true
+        - label: I have not included credentials, private provider links, or personal data.
+          required: true

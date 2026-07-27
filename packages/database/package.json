@@ -1,0 +1,26 @@
+{
+  "name": "@storagepk/database",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
+    "prisma:deploy": "prisma migrate deploy",
+    "prisma:validate": "cross-env DATABASE_URL=postgresql://schema-validation.invalid/storagepk prisma validate",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run prisma:validate"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.1.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.1.0",
+    "cross-env": "^7.0.3",
+    "@types/node": "^22.10.5"
+  }
+}

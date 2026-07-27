@@ -1,0 +1,70 @@
+{
+  "name": "storagepk",
+  "version": "0.3.0",
+  "private": true,
+  "description": "StoragePK multi-provider storage workspace",
+  "license": "MIT",
+  "author": "TrisMinh",
+  "homepage": "https://github.com/TrisMinh/StoragePK#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TrisMinh/StoragePK.git"
+  },
+  "bugs": {
+    "url": "https://github.com/TrisMinh/StoragePK/issues"
+  },
+  "keywords": [
+    "storage",
+    "google-drive",
+    "telegram",
+    "desktop",
+    "tauri",
+    "local-first"
+  ],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n web,api -c blue,green \"npm run dev:web\" \"npm run dev:api\"",
+    "dev:web": "npm run dev --workspace=@storagepk/web",
+    "dev:api": "npm run start:dev --workspace=@storagepk/api",
+    "db:generate": "npm run prisma:generate --workspace=@storagepk/database",
+    "db:push": "npm run prisma:push --workspace=@storagepk/database",
+    "db:deploy": "npm run prisma:deploy --workspace=@storagepk/database",
+    "db:validate": "npm run prisma:validate --workspace=@storagepk/database",
+    "auth:bootstrap": "node tools/bootstrap-user.mjs",
+    "build:contracts": "npm run build --workspace=@storagepk/contracts",
+    "build:providers": "npm run build --workspace=@storagepk/providers",
+    "build:database": "npm run prisma:generate --workspace=@storagepk/database && npm run build --workspace=@storagepk/database",
+    "build:api": "npm run build --workspace=@storagepk/api",
+    "build:worker": "npm run build --workspace=@storagepk/worker",
+    "build:desktop": "npm run build --workspace=@storagepk/desktop",
+    "build:web": "npm run build --workspace=@storagepk/web",
+    "release:desktop": "node tools/check-desktop-oauth.mjs && npm run tauri:test --workspace=@storagepk/desktop && npm run tauri:build --workspace=@storagepk/desktop && node tools/release-check.mjs --desktop",
+    "build": "npm run build:contracts && npm run build:providers && npm run build:database && npm run build:api && npm run build:worker && npm run build:desktop && npm run build:web",
+    "typecheck:workspaces": "npm run typecheck --workspaces --if-present",
+    "typecheck": "npm run release:prepare && npm run typecheck:workspaces",
+    "lint:workspaces": "npm run lint --workspaces --if-present",
+    "lint": "npm run release:prepare && npm run lint:workspaces",
+    "test": "npm run test --workspaces --if-present",
+    "security:scan": "node tools/secret-scan.mjs",
+    "release:check": "node tools/release-check.mjs",
+    "release:prepare": "npm run build:contracts && npm run build:providers && npm run build:database",
+    "release": "npm run security:scan && npm run release:prepare && npm run lint:workspaces && npm run typecheck:workspaces && npm test && npm run build && npm run release:check"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "overrides": {
+    "next": {
+      "postcss": "8.5.23",
+      "sharp": "0.35.3"
+    }
+  }
+}

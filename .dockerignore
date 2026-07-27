@@ -1,0 +1,15 @@
+node_modules
+.next
+dist
+build
+coverage
+.git
+.env
+.env.*
+.tmp
+.storagepk
+**/.storagepk
+**/*.tsbuildinfo
+apps/desktop/src-tauri/target
+release
+*.log
