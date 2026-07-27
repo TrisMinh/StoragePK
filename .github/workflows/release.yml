@@ -123,7 +123,7 @@ jobs:
           ref: ${{ inputs.release_tag }}
 
       - name: Download installer artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: storagepk-windows-${{ inputs.release_tag }}
           path: artifacts/windows
