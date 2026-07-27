@@ -99,7 +99,7 @@ jobs:
             Out-Null
 
       - name: Upload installer artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: storagepk-windows-${{ inputs.release_tag }}
           if-no-files-found: error
