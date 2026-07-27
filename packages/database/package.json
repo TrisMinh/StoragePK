@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "prisma": "^6.1.0",
-    "cross-env": "^7.0.3",
+    "cross-env": "^10.1.0",
     "@types/node": "^22.10.5"
   }
 }
