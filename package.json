@@ -54,7 +54,7 @@
     "release": "npm run security:scan && npm run release:prepare && npm run lint:workspaces && npm run typecheck:workspaces && npm test && npm run build && npm run release:check"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2",
+    "concurrently": "^10.0.4",
     "cross-env": "^7.0.3",
     "typescript": "^5.7.3"
   },
